@@ -312,7 +312,8 @@ def calculate_rolling_rmse():
     return np.sqrt(np.mean((np.array(actuals) - np.array(predictions))**2))
 
 def on_connect(client, userdata, flags, reason_code, properties):
-    if reason_code.rc == 0:
+    # if reason_code.rc == 0:
+    if reason_code == 0:
         print("Edge: Connected to MQTT Broker!")
         client.subscribe(MQTT_TOPIC_SENSORS)
         print(f"Edge: Subscribed to topic: {MQTT_TOPIC_SENSORS}")

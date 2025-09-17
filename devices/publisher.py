@@ -186,7 +186,8 @@ if not os.path.exists(DATA_FILE) or os.path.getsize(DATA_FILE) == 0:
 
 # --- Update to modern MQTT Callback API ---
 def on_connect(client, userdata, flags, reason_code, properties):
-    if reason_code.rc == 0:
+    # if reason_code.rc == 0:
+    if reason_code == 0:
         print("Publisher: Connected to MQTT Broker!")
     else:
         print(f"Publisher: Failed to connect, return code {reason_code.rc}\n")
