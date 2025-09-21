@@ -1,3 +1,5 @@
+latest_voc_readings = None
+model = None
 # # app/edge_infer.py
 
 # import paho.mqtt.client as mqtt
