@@ -1,5 +1,3 @@
-latest_voc_readings = None
-model = None
 # # app/edge_infer.py
 
 # import paho.mqtt.client as mqtt
@@ -323,7 +321,7 @@ def on_connect(client, userdata, flags, reason_code, properties):
         print(f"Edge: Failed to connect, return code {reason_code.rc}\n")
 
 def on_message(client, userdata, msg):
-    global latest_voc_readings, model
+    # global latest_voc_readings, model
     try:
         payload = json.loads(msg.payload.decode())
         actual_voc = payload['voc_ppb']
