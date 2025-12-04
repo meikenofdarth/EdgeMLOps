@@ -1,6 +1,13 @@
 // Jenkinsfile
 pipeline {
-    agent any
+    agent {
+        any {
+            tools {
+                // This name MUST match the name you gave the tool in the Jenkins UI.
+                docker 'docker-cli'
+            }
+        }
+    }
 
     environment {
         DOCKERHUB_USERNAME = 'smoothlake67' // <--- CHANGE THIS
