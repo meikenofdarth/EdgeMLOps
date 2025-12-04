@@ -1,6 +1,5 @@
-// Jenkinsfile (Simplified and Final Version)
+// Jenkinsfile (Final Version with Workspace Fix)
 pipeline {
-    // We can go back to 'agent any' because the agent now has all the tools we need.
     agent any
 
     environment {
@@ -9,14 +8,16 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        // --- THIS IS THE NEW, CRITICAL STAGE ---
+        stage('Prepare Workspace') {
             steps {
-                checkout scm
+                // The checkout happens as root, so we give ownership back to the 'jenkins' user
+                // so that all subsequent plugin steps work correctly.
+                sh 'chown -R jenkins:jenkins .'
             }
         }
+        // ------------------------------------------
 
-        // We need to install Python dependencies, but Python is not in the new image.
-        // Let's keep the test stage inside a Python container for cleanliness.
         stage('Run Automated Tests') {
             steps {
                 script {
@@ -36,7 +37,8 @@ pipeline {
                     
                     // Push the image using the credentials
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                        customImage.push()
+                        // The 'push()' method is cleaner and more reliable
+                        customImage.push('latest')
                     }
                 }
             }
