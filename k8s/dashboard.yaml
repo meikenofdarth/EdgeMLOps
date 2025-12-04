@@ -1,0 +1,50 @@
+# k8s/dashboard.yaml (Corrected)
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard
+  template:
+    metadata:
+      labels:
+        app: dashboard
+    spec:
+      containers:
+      - name: dashboard
+        image: your-dockerhub-username/edge-mlops-mini # Placeholder
+        command: ["streamlit", "run", "dashboard/dashboard.py", "--server.port", "8501", "--server.address", "0.0.0.0"]
+        ports:
+        - containerPort: 8501
+        volumeMounts:
+        - name: app-data-storage # This name now matches the volume defined below
+          mountPath: /app/data
+          subPath: data
+        - name: app-data-storage # This also matches
+          mountPath: /app/app
+          subPath: app
+      
+      # --- THIS IS THE MISSING/CORRECTED BLOCK ---
+      # Define the volumes that are available to all containers in this Pod.
+      volumes:
+      - name: app-data-storage # We give our volume a name
+        persistentVolumeClaim:
+          claimName: app-data-pvc # And we tell it to use the PVC we created
+      # ------------------------------------------
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-service
+spec:
+  selector:
+    app: dashboard
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8501
+      targetPort: 8501

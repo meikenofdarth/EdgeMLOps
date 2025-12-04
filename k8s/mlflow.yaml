@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow
+  template:
+    metadata:
+      labels:
+        app: mlflow
+    spec:
+      containers:
+      - name: mlflow
+        image: your-dockerhub-username/edge-mlops-mini # Placeholder: we'll build this with Jenkins
+        command: ["mlflow", "ui", "--host", "0.0.0.0", "--port", "5001"]
+        ports:
+        - containerPort: 5001
+        volumeMounts:
+        - name: mlruns-storage
+          mountPath: /app/mlruns
+      volumes:
+      - name: mlruns-storage
+        persistentVolumeClaim:
+          claimName: mlruns-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-service
+spec:
+  selector:
+    app: mlflow
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001
