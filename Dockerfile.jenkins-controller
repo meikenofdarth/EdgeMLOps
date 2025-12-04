@@ -1,0 +1,18 @@
+# Dockerfile.jenkins-controller
+
+# Start from the official Jenkins image
+FROM jenkins/jenkins:lts-jdk17
+
+# Switch to the root user to install software
+USER root
+
+# Install the Docker CLI using the official convenience script
+# We also install sudo to allow the jenkins user to run docker
+RUN apt-get update && apt-get install -y curl sudo
+RUN curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
+
+# Add the 'jenkins' user to the 'docker' group so it can run docker commands
+RUN usermod -aG docker jenkins
+
+# Switch back to the default jenkins user for security
+USER jenkins
