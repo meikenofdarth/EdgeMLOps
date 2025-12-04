@@ -1,16 +1,19 @@
-// Jenkinsfile
+// Jenkinsfile (Final, Robust Version)
 pipeline {
+    // This 'agent' block is the key change.
     agent {
-        any {
-            tools {
-                // This name MUST match the name you gave the tool in the Jenkins UI.
-                docker 'docker-cli'
-            }
+        // It tells Jenkins to build a temporary agent from a Dockerfile.
+        dockerfile {
+            filename 'Dockerfile.jenkins' // Use the build environment we just defined
+            // This is crucial: it passes the Docker socket from the Jenkins server
+            // into our temporary build agent, allowing it to run docker commands.
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
 
     environment {
-        DOCKERHUB_USERNAME = 'smoothlake67' // <--- CHANGE THIS
+        // --- YOUR DOCKER HUB USERNAME ---
+        DOCKERHUB_USERNAME = 'smoothlake67'
         IMAGE_NAME = "${DOCKERHUB_USERNAME}/edge-mlops-mini"
     }
 
@@ -23,21 +26,16 @@ pipeline {
 
         stage('Run Automated Tests') {
             steps {
-                script {
-                    docker.image('python:3.11-slim').inside {
-                        sh 'pip install -r requirements.txt'
-                        sh 'python -m unittest discover tests'
-                    }
-                }
+                // We are already in a container with Python installed.
+                sh 'pip install -r requirements.txt'
+                sh 'python3 -m unittest discover tests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    // We need to pass the Dockerfile's location to the build command
-                    def customImage = docker.build(IMAGE_NAME, '.')
-                }
+                // Standard docker build command.
+                sh "docker build -t ${IMAGE_NAME} ."
             }
         }
 
